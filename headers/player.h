@@ -11,6 +11,7 @@ private:
     string name_;
     Field field_;
     vector<Ship *> ships_;
+    int hits_ = 20;
 public:
     void DrawField();
 
@@ -22,8 +23,9 @@ public:
 
     bool PlaceShip(int x, int y, int direction, int idx);
 
-    bool IsLost();
+    bool IsWin();
 
+    void DecHits();
 
     void DrawHitFlield();  // показывает черновик что где может быть у противника
 
