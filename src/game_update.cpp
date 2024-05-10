@@ -104,6 +104,8 @@ void GetCoordinates(char &xc, char &yc) {
                 cout << invalid_input << endl;
             } else if (!isdigit(x_enter[1])) {
                 cout << invalid_input << endl;
+            } else if (x_enter[1] - '0' <= 1 || x_enter[1] >= 9) {
+                cout << invalid_input << endl;
             } else {
                 xc = toupper(x_enter[0]);
                 yc = x_enter[1];
