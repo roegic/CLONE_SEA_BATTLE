@@ -6,7 +6,7 @@
 #include <vector>
 
 string invalid_input = "Invalid input! Please try again";
-vector<pair<string, string>> client_field;
+vector<pair<int, int>> client_field;
 
 void GetCoordinatesFire(Player &player1, Player &player2) {
   int turn = 1;
@@ -87,26 +87,23 @@ void GetDirection(int &direction) {
   }
 }
 
-string recieve_player_coords(int type) {
-  std::string message = "-1";
-  if (type == 1) { // 1 локалка
-    getline(cin, message);
-  } else if (type == 2) { // хост
-    message = recieve_client_coords();
-  } else if (type == 3) { // клиент
-    send_client_coords();
-  }
-  return message;
-}
+//string recieve_player_coords(int type) {
+//  std::string message = "-1";
+//  if (type == 1) { // 1 локалка
+//    getline(cin, message);
+//  } else if (type == 2) { // хост,
+//    message = recieve_client_coords();
+//  } else if (type == 3) { // клиент
+//    send_client_coords();
+//  }
+//  return message;
+//}
 
 void GetCoordinates(char &xc, char &yc, int type) {
-  cout << "Enter the coordinate [letter(A-H)][number(1-8)] (example: A1): ";
   while (true) {
-    std::string xcord = recieve_player_coords(type);
-    if (xcord == "-1") {
-      continue;
-    }
     cout << "Enter the coordinate [letter(A-H)][number(1-8)] (example: A1): ";
+    std::string xcord;
+    getline(cin,xcord);
     string x_enter;
     for (int i = 0; i < xcord.size(); ++i) {
       if (!isspace(xcord[i])) {
@@ -126,9 +123,12 @@ void GetCoordinates(char &xc, char &yc, int type) {
       } else {
         xc = toupper(x_enter[0]);
         yc = x_enter[1];
+        if (type == 3) {
+          send_client_coords(toupper(xc) - 'A', yc - '0' - 1);
+        }
         break;
       }
-    } else {
+    } else if (xcord != ""){
       cout << invalid_input << endl;
     }
   }
@@ -176,6 +176,15 @@ void AddShips(Player &player, int type) {
       cout << "\x1B[2J\x1B[H" << endl;
       player.DrawField();
       cout << "\n";
+
+      if (client_field.size()<2) {
+        pair<int,int> t = recieve_client_coords();
+        int x = t.first;
+        int y = t.second;
+        if (x!=-100 && y != -100) {
+          client_field.push_back({x,y});
+        }
+      }
     }
   }
   cout << "All ships are added!" << endl;

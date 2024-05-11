@@ -1,4 +1,5 @@
 #include "../headers/network.h"
+using namespace std;
 sf::TcpSocket socket;
 sf::Packet  packet;
 char create_connection() {
@@ -64,35 +65,33 @@ void start_multiplayer_game()
     }
   }
 }
-std::string recieve_client_coords() {
+pair<int,int> recieve_client_coords() {
   socket.setBlocking(false);
 
   std::string message = "";
+  int x = -100;
+  int y = -100;
 
     if(socket.receive(packet) == sf::Socket::Done)
     {
       std::string nameRec;
 
 
-      packet    >> nameRec >> message;
+      packet >> nameRec >> x >> y;
 
     }
-    return message;
+    return {x,y};
 }
 
-void send_client_coords() {
+void send_client_coords(int x, int y) {
   socket.setBlocking(false);
-  std::string message = "";
 
-  std::getline(std::cin, message);
 
-  if(message != "" || message.length() >= 1)
-  {
     packet.clear();
-    packet << "Player" << message;
+    packet << "Player" << x << y;
 
     socket.send(packet);
 
-    message = "";
-  }
+    x = 0;
+    y=0;
 }

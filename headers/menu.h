@@ -3,6 +3,7 @@
 #include <iostream>
 #include "Player.h"
 #include "network.h"
+using namespace std;
 
 void DrawTitle();
 
