@@ -6,6 +6,7 @@
 #include <vector>
 
 string invalid_input = "Invalid input! Please try again";
+vector<pair<string, string>> client_field;
 
 void GetCoordinatesFire(Player &player1, Player &player2) {
   int turn = 1;
@@ -85,19 +86,15 @@ void GetDirection(int &direction) {
     }
   }
 }
+
 string recieve_player_coords(int type) {
-  std::string message = "";
+  std::string message = "-1";
   if (type == 1) { // 1 локалка
     getline(cin, message);
   } else if (type == 2) { // хост
-    string enemies_coords = recieve_client_coords();
-//    if (v != "") {
-//      int y = 0;
-//    }
-    // getline(cin, message);
+    message = recieve_client_coords();
   } else if (type == 3) { // клиент
     send_client_coords();
-    message = "A7";
   }
   return message;
 }
@@ -105,11 +102,6 @@ string recieve_player_coords(int type) {
 void GetCoordinates(char &xc, char &yc, int type) {
   cout << "Enter the coordinate [letter(A-H)][number(1-8)] (example: A1): ";
   while (true) {
-    if (type == 2) {
-      std::string xcord = recieve_player_coords(type);
-      continue;
-    }
-
     std::string xcord = recieve_player_coords(type);
     if (xcord == "-1") {
       continue;
