@@ -8,6 +8,8 @@
 string invalid_input = "Invalid input! Please try again";
 vector<pair<int, int>> client_field;
 vector<int> client_directions;
+vector<pair<int, int>> server_field;
+vector<int> server_directions;
 int SHIPS_CNT = 10;
 
 void GetCoordinatesFire(Player &player1, Player &player2) {
@@ -81,6 +83,9 @@ void GetDirection(int &direction, int type) {
         if (type == 3) {
           int dir = send_client_direction(direction);
         }
+        if (type == 2) {
+          server_directions.push_back(direction);
+        }
         break;
       }
     }
@@ -103,6 +108,7 @@ void GetDirection(int &direction, int type) {
 //  }
 //  return message;
 //}
+
 
 void GetCoordinates(char &xc, char &yc, int type) {
   while (true) {
@@ -131,10 +137,26 @@ void GetCoordinates(char &xc, char &yc, int type) {
         if (type == 3) {
           send_client_coords(toupper(xc) - 'A', yc - '0' - 1);
         }
+        if (type == 2) {
+          server_field.push_back({toupper(xc) - 'A', yc - '0' - 1});
+        }
         break;
       }
     } else if (xcord != ""){
       cout << invalid_input << endl;
+    }
+  }
+}
+void send_to_client() {
+  int cur_idx=0;
+  std::vector<std::string> shipName = {"Battleship", "Cruiser", "Destroyer",
+                                       "Submarine"};
+  std::vector<int> sizeShip = {4, 3, 2, 1};
+  for (int i = 0; i < shipName.size(); ++i) {
+    for (int j = 0; j < 5 - sizeShip[i]; ++j) {
+      send_client_coords(server_field[cur_idx].first, server_field[cur_idx].second);
+      send_client_direction(server_directions[cur_idx]);
+      cur_idx++;
     }
   }
 }
@@ -165,6 +187,9 @@ void AddShips(Player &player, int type) {
         GetCoordinates(x_enter, y_enter, type);
         if (sizeShip[i] == 1) {
           direction = 2;
+          if (type == 3) {
+            send_client_direction(direction);
+          }
         } else {
           GetDirection(direction, type);
         }
@@ -197,6 +222,25 @@ void AddShips(Player &player, int type) {
         int d = recieve_client_direction();
         if (d != -1) {
           client_directions.push_back(d);
+        }
+      }
+    }
+    send_to_client();
+  }
+  if (type == 3) {
+    while(client_field.size()<SHIPS_CNT || client_directions.size() < SHIPS_CNT) {
+      if (client_field.size() < SHIPS_CNT) {
+        pair<int, int> t = recieve_client_coords();
+        int x = t.first;
+        int y = t.second;
+        if (x != -100 && y != -100) {
+          server_field.push_back({x, y});
+        }
+      }
+      if (client_directions.size() < SHIPS_CNT) {
+        int d = recieve_client_direction();
+        if (d != -1) {
+          server_directions.push_back(d);
         }
       }
     }
