@@ -13,9 +13,20 @@ int main() {
     player1.CreateShip();
     player2.CreateShip();
     DrawTitle();
-    ShowMenu(player1, player2);
+    char type;
+    ShowMenu(player1, player2, type);
 
-    AddShips(player1);
-    AddShips(player2);
+    if (type == 'l') {
+      AddShips(player2, 1);
+      AddShips(player1, 1);
+    }
+    if (type == 'h') {
+      AddShips(player1, 2);
+    }
+    if (type == 'j') {
+      AddShips(player2, 3);
+    }
+
+
     GetCoordinatesFire(player1, player2);
 }
