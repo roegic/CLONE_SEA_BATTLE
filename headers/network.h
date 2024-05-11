@@ -7,3 +7,5 @@ char create_connection();
 void get_players_message();
 std::pair<int,int> recieve_client_coords();
 void send_client_coords(int x, int y);
+int send_client_direction(int direction);
+int recieve_client_direction();

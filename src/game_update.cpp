@@ -7,6 +7,8 @@
 
 string invalid_input = "Invalid input! Please try again";
 vector<pair<int, int>> client_field;
+vector<int> client_directions;
+int SHIPS_CNT = 10;
 
 void GetCoordinatesFire(Player &player1, Player &player2) {
   int turn = 1;
@@ -59,7 +61,7 @@ void GetCoordinatesFire(Player &player1, Player &player2) {
   cout << "\n";
 }
 
-void GetDirection(int &direction) {
+void GetDirection(int &direction, int type) {
   char charDir;
   std::vector<char> base = {'U', 'R', 'D', 'L'};
   string tempDirection;
@@ -76,6 +78,9 @@ void GetDirection(int &direction) {
       if (base[i] == charDir) {
         direction = i + 1;
         isValid = true;
+        if (type == 3) {
+          int dir = send_client_direction(direction);
+        }
         break;
       }
     }
@@ -161,7 +166,7 @@ void AddShips(Player &player, int type) {
         if (sizeShip[i] == 1) {
           direction = 2;
         } else {
-          GetDirection(direction);
+          GetDirection(direction, type);
         }
         int x = toupper(x_enter) - 'A';
         int y = y_enter - '0' - 1;
@@ -176,17 +181,27 @@ void AddShips(Player &player, int type) {
       cout << "\x1B[2J\x1B[H" << endl;
       player.DrawField();
       cout << "\n";
-
-      if (client_field.size()<2) {
-        pair<int,int> t = recieve_client_coords();
+    }
+  }
+  if (type == 2) {
+    while(client_field.size()<SHIPS_CNT || client_directions.size() < SHIPS_CNT) {
+      if (client_field.size() < SHIPS_CNT) {
+        pair<int, int> t = recieve_client_coords();
         int x = t.first;
         int y = t.second;
-        if (x!=-100 && y != -100) {
-          client_field.push_back({x,y});
+        if (x != -100 && y != -100) {
+          client_field.push_back({x, y});
+        }
+      }
+      if (client_directions.size() < SHIPS_CNT) {
+        int d = recieve_client_direction();
+        if (d != -1) {
+          client_directions.push_back(d);
         }
       }
     }
   }
+
   cout << "All ships are added!" << endl;
   EnterToContinue();
 }

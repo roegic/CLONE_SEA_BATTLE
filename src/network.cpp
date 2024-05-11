@@ -2,6 +2,7 @@
 using namespace std;
 sf::TcpSocket socket;
 sf::Packet  packet;
+#include "../headers/player.h"
 char create_connection() {
   sf::IpAddress ip = sf::IpAddress::getLocalAddress();
   char type;
@@ -94,4 +95,23 @@ void send_client_coords(int x, int y) {
 
     x = 0;
     y=0;
+}
+int recieve_client_direction() {
+  socket.setBlocking(false);
+
+  std::string message = "";
+  int dir = -1;
+  if(socket.receive(packet) == sf::Socket::Done)
+  {
+    std::string nameRec;
+    packet >> nameRec >> dir;
+  }
+  return dir;
+}
+int send_client_direction(int direction) {
+  socket.setBlocking(false);
+  packet.clear();
+  packet << "Player" << direction;
+
+  socket.send(packet);
 }
