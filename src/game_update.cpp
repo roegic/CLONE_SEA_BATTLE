@@ -87,6 +87,7 @@ void GetDirection(int &direction) {
 
 
 void GetCoordinates(char &xc, char &yc) {
+<<<<<<< HEAD
   while (true) {
     cout << "Enter the coordinate [letter(A-H)][number(1-8)] (example: A1): ";
     std::string xcord;
@@ -96,6 +97,35 @@ void GetCoordinates(char &xc, char &yc) {
       if (!isspace(xcord[i])) {
         x_enter += xcord[i];
       }
+=======
+    while (true) {
+        cout << "Enter the coordinate [letter(A-H)][number(1-8)] (example: A1): ";
+        std::string xcord;
+        getline(cin,xcord);
+        string x_enter;
+        for (int i = 0; i < xcord.size(); ++i) {
+            if (!isspace(xcord[i])) {
+                x_enter += xcord[i];
+            }
+        }
+        if (x_enter.length() == 2) {
+            if (!isalpha(x_enter[0])) {
+                cout << invalid_input << endl;
+            } else if (!(toupper(x_enter[0]) - 'A' < 10 && toupper(x_enter[0]) - 'A' >= 0)) {
+                cout << invalid_input << endl;
+            } else if (!isdigit(x_enter[1])) {
+                cout << invalid_input << endl;
+            } else if (x_enter[1] - '0' <= 1 || x_enter[1] >= 9) {
+                cout << invalid_input << endl;
+            } else {
+                xc = toupper(x_enter[0]);
+                yc = x_enter[1];
+                break;
+            }
+        } else {
+            cout<< invalid_input<<endl;
+        }
+>>>>>>> d7a0908c6d7a9d2498e5f27e12651b2cd5bca0a8
     }
     if (x_enter.length() == 2) {
       if (!isalpha(x_enter[0])) {
