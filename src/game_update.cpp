@@ -80,12 +80,7 @@ void GetDirection(int &direction, int type) {
       if (base[i] == charDir) {
         direction = i + 1;
         isValid = true;
-        if (type == 3) {
-          int dir = send_client_direction(direction);
-        }
-        if (type == 2) {
-          server_directions.push_back(direction);
-        }
+
         break;
       }
     }
@@ -134,12 +129,7 @@ void GetCoordinates(char &xc, char &yc, int type) {
       } else {
         xc = toupper(x_enter[0]);
         yc = x_enter[1];
-        if (type == 3) {
-          send_client_coords(toupper(xc) - 'A', yc - '0' - 1);
-        }
-        if (type == 2) {
-          server_field.push_back({toupper(xc) - 'A', yc - '0' - 1});
-        }
+
         break;
       }
     } else if (xcord != ""){
@@ -147,19 +137,77 @@ void GetCoordinates(char &xc, char &yc, int type) {
     }
   }
 }
-void send_to_client() {
+//void send_to_client() {
+//  int cur_idx=0;
+//  std::vector<std::string> shipName = {"Battleship", "Cruiser", "Destroyer",
+//                                       "Submarine"};
+//  std::vector<int> sizeShip = {4, 3, 2, 1};
+//  for (int i = 0; i < shipName.size(); ++i) {
+//    for (int j = 0; j < 5 - sizeShip[i]; ++j) {
+//      send_client_coords(server_field[cur_idx].first, server_field[cur_idx].second);
+//      send_client_direction(server_directions[cur_idx]);
+//      cur_idx++;
+//    }
+//  }
+//}
+void send_to_host() {
   int cur_idx=0;
   std::vector<std::string> shipName = {"Battleship", "Cruiser", "Destroyer",
                                        "Submarine"};
   std::vector<int> sizeShip = {4, 3, 2, 1};
   for (int i = 0; i < shipName.size(); ++i) {
     for (int j = 0; j < 5 - sizeShip[i]; ++j) {
-      send_client_coords(server_field[cur_idx].first, server_field[cur_idx].second);
-      send_client_direction(server_directions[cur_idx]);
+      send_coords_to_packet(client_field[cur_idx].first,
+                            client_field[cur_idx].second,
+                            client_directions[cur_idx]);
       cur_idx++;
     }
   }
+  send_packet();
 }
+
+void get_field_from_client() {
+
+  int cur_idx=0;
+  std::vector<std::string> shipName = {"Battleship", "Cruiser", "Destroyer",
+                                       "Submarine"};
+  std::vector<int> sizeShip = {4, 3, 2, 1};
+
+  while (true) {
+    if(is_packet_recieved()) {
+      for (int i = 0; i < shipName.size(); ++i) {
+        for (int j = 0; j < 5 - sizeShip[i]; ++j) {
+          client_field.push_back({0, 0});
+          client_directions.push_back(0);
+          vector<int> data = get_3_packet_data();
+          client_field[cur_idx].first = data[0];
+          client_field[cur_idx].second = data[1];
+          client_directions[cur_idx] = data[2];
+          cur_idx++;
+        }
+      }
+      break;
+    }
+  }
+}
+//void get_field_from_host() {
+//  while(client_field.size()<SHIPS_CNT || client_directions.size() < SHIPS_CNT) {
+//    if (client_field.size() < SHIPS_CNT) {
+//      pair<int, int> t = recieve_client_coords();
+//      int x = t.first;
+//      int y = t.second;
+//      if (x != -100 && y != -100) {
+//        server_field.push_back({x, y});
+//      }
+//    }
+//    if (client_directions.size() < SHIPS_CNT) {
+//      int d = recieve_client_direction();
+//      if (d != -1) {
+//        server_directions.push_back(d);
+//      }
+//    }
+//  }
+//}
 
 void AddShips(Player &player, int type) {
   // addship for the given player object
@@ -187,14 +235,19 @@ void AddShips(Player &player, int type) {
         GetCoordinates(x_enter, y_enter, type);
         if (sizeShip[i] == 1) {
           direction = 2;
-          if (type == 3) {
-            send_client_direction(direction);
-          }
         } else {
           GetDirection(direction, type);
         }
         int x = toupper(x_enter) - 'A';
         int y = y_enter - '0' - 1;
+        if (type == 2) {
+          server_field.push_back({x,y});
+          server_directions.push_back({direction});
+        }
+        if (type == 3) {
+          client_field.push_back({x,y});
+          client_directions.push_back({direction});
+        }
         if (player.PlaceShip(x, y, direction, i)) {
           break;
         } else {
@@ -208,42 +261,13 @@ void AddShips(Player &player, int type) {
       cout << "\n";
     }
   }
-  if (type == 2) {
-    while(client_field.size()<SHIPS_CNT || client_directions.size() < SHIPS_CNT) {
-      if (client_field.size() < SHIPS_CNT) {
-        pair<int, int> t = recieve_client_coords();
-        int x = t.first;
-        int y = t.second;
-        if (x != -100 && y != -100) {
-          client_field.push_back({x, y});
-        }
-      }
-      if (client_directions.size() < SHIPS_CNT) {
-        int d = recieve_client_direction();
-        if (d != -1) {
-          client_directions.push_back(d);
-        }
-      }
-    }
-    send_to_client();
+  if (type == 2) { // type = 2 means it is host we need to get clients data
+    get_field_from_client();
+    //send_to_client();
   }
-  if (type == 3) {
-    while(client_field.size()<SHIPS_CNT || client_directions.size() < SHIPS_CNT) {
-      if (client_field.size() < SHIPS_CNT) {
-        pair<int, int> t = recieve_client_coords();
-        int x = t.first;
-        int y = t.second;
-        if (x != -100 && y != -100) {
-          server_field.push_back({x, y});
-        }
-      }
-      if (client_directions.size() < SHIPS_CNT) {
-        int d = recieve_client_direction();
-        if (d != -1) {
-          server_directions.push_back(d);
-        }
-      }
-    }
+  if (type == 3) { // type = 3 means it is client we need to get clients data
+    send_to_host();
+    //get_field_from_host();
   }
 
   cout << "All ships are added!" << endl;

@@ -1,8 +1,10 @@
 #include "../headers/network.h"
-using namespace std;
+
 sf::TcpSocket socket;
 sf::Packet  packet;
 #include "../headers/player.h"
+#include <vector>
+using namespace std;
 char create_connection() {
   sf::IpAddress ip = sf::IpAddress::getLocalAddress();
   char type;
@@ -25,7 +27,7 @@ char create_connection() {
       std::cout << "Error!\n";
     }
   }
-  //socket.setBlocking(false);
+  socket.setBlocking(false);
   return type;
 }
 
@@ -84,18 +86,32 @@ pair<int,int> recieve_client_coords() {
     return {x,y};
 }
 
-void send_client_coords(int x, int y) {
+void send_coords_to_packet(int x, int y, int dir) {
+
   socket.setBlocking(false);
-
-
-    packet.clear();
-    packet << "Player" << x << y;
-
-    socket.send(packet);
-
+  packet << x << y << dir;
     x = 0;
     y=0;
 }
+
+
+void send_packet() {
+  socket.send(packet);
+  packet.clear();
+}
+
+vector<int> get_3_packet_data(){
+  vector<int> vec = {0,0,0};
+  packet>>vec[0]>>vec[1]>>vec[2];
+  return vec;
+}
+bool is_packet_recieved(){
+  if(socket.receive(packet) == sf::Socket::Done){
+    return true;
+  }
+  return false;
+}
+
 int recieve_client_direction() {
   socket.setBlocking(false);
 
