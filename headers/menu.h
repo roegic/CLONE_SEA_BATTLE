@@ -1,8 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include "Player.h"
-#include "network.h"
+#include "player.h"
+//#include "network.h"
 using namespace std;
 
 void DrawTitle();
