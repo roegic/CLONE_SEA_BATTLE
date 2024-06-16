@@ -83,7 +83,7 @@ void GetCoordinatesFire(Player &player1, Player &player2, int type) {
                 selectedPlayer->DrawHitFlield();
             }
         }
-        if (type == 1 || (type == 0 && otherPlayer->GetPlayerName() != "Computer")) {
+        if (type == 1 || type == 0) {
             otherPlayer->DrawHitFlield();
         }
         cout << "\nTurn: " << turn << "\nPlayer " << otherPlayer->GetPlayerName()
@@ -104,7 +104,7 @@ void GetCoordinatesFire(Player &player1, Player &player2, int type) {
                 if (otherPlayer->GetPlayerName() == "Computer") {
                     x = rand() % 8;
                     y = rand() % 8;
-                    cout << "Computer hits " << char(x + 'A') <<' '<< char(y + 1 + '0') <<'\n';
+                    cout << "Computer hits " << char(x + 'A') << char(y + 1 + '0') <<'\n';
                 }
             }
 //            if (type == 2) { // хост
@@ -139,7 +139,7 @@ void GetCoordinatesFire(Player &player1, Player &player2, int type) {
                 if (otherPlayer->FireEnemy(x, y)) {
                     cout << "It's a Hit!" << endl;
                     turn--;
-                    selectedPlayer->DecHits();
+                    otherPlayer->DecHits();
                 } else {
                     cout << "It's a miss!" << endl;
                 }
@@ -375,13 +375,13 @@ void AddShips(Player &player, Player &other_player, int type) {
     cout << "All ships are added!" << endl;
     EnterToContinue();
 
-    if (type == 1) {
-        GetCoordinatesFire(player, other_player, 1);
-    }
+//    if (type == 1) {
+//        GetCoordinatesFire(player, other_player, 1);
+//    }
 
     if (type == 2) {
         GetCoordinatesFire(player, other_player, 2); // todo move it to addShip
-    } else if (type != 0) {
+    } else if (type == 3) {
         GetCoordinatesFire(other_player, player, 3); // todo move it to addShip
     }
 
